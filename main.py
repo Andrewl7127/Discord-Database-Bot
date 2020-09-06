@@ -13,7 +13,7 @@ client  = commands.Bot(command_prefix = ".", case_insensitive = "true")
 async def on_ready():
     print("Bot ready")
 
-initial_extensions = ['cogs.moderation']
+initial_extensions = ['cogs.moderation', 'cogs.welcome']
 
 if __name__ == '__main__':
     for extension in initial_extensions:
@@ -22,11 +22,6 @@ if __name__ == '__main__':
         except Exception as e:
             print(f'Extension Load Failed: `{extension}`', file=sys.stderr)
             traceback.print_exc()
-
-@client.event
-async def on_member_join(member):
-    embed = discord.Embed(color = 0x95efcc, description=f"Welcome to the server! You are member {len(list(member.guild.members))}`")
-    embed.timestamp = datetime.datetime.utcnow()
 
 
 @client.command()
