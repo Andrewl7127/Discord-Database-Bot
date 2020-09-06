@@ -10,7 +10,7 @@ class WelcomeCog(commands.Cog, name="Moderator"):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         embed = discord.Embed(color = 0x95efcc, description=f"Welcome to the server! You are member {len(list(member.guild.members))}`")
-        embed.timestamp = datetime.datetime.utcnow()
+        
 
 
 
