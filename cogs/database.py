@@ -72,16 +72,16 @@ class DatabaseCog(commands.Cog, name="Database"):
         except Exception as e:
             await ctx.send(f"The `{args[0]}` collection does not exist")
             
-    #remove point 
+    #removes all points 
     @commands.command()
     async def rmAllItems(self, ctx, arg):
         try:
             self.mycursor.execute('TRUNCATE TABLE ' + arg)
             self.mydb.commit()
-            await ctx.send('All items have been successfully removed from the ' + arg + ' collection')
+            await ctx.send(f'All items have been successfully removed from the `{arg}` collection')
         except Exception as e:
              print("Exeception occured:{}".format(e))
-             await ctx.send('The items could not be deleted :(')
+             await ctx.send('The item(s) could not be deleted :(')
 
     
     
@@ -91,6 +91,31 @@ class DatabaseCog(commands.Cog, name="Database"):
     #undo fucntion? (undoes last command)
 
     #alter point 
+    @commands.command()
+    async def updItem(self, ctx, *args):
+        if len(args) >= 3:
+            if len(args) % 2 == 1:
+                await ctx.send('You need a table name and one value for every column')
+            else:
+                try:
+                    command = 'UPDATE ' + args[0] + ' SET '
+                    count = 1
+                    for arg in args[2:]:
+                        if count % 2 == 1:
+                            command += arg + ' = '
+                        else:
+                            command += "'" + arg + "', "
+                        count += 1
+                    command = command[:-2]
+                    command += ' WHERE ID = ' + args[1]
+                    self.mycursor.execute(command)
+                    self.mydb.commit()
+                    await ctx.send(f'The item(s) have been successfully been updated in the `{args[0]}` collection')
+                except Exception as e:
+                    print("Exeception occured:{}".format(e))
+                    await ctx.send('The item(s) could not be modified :(')
+        else:
+            await ctx.send('You need at least one column to modify')
 
     #pull point by key
     @commands.command() 
@@ -117,7 +142,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             msg = ''
             for table in tables:
                 msg += table[0] + ', '
-            await ctx.send(msg[:-2])
+            await ctx.send('You have created the following collections: ' + msg[:-2])
         except Exception as e:
              print("Exeception occured:{}".format(e))
              await ctx.send('Could not list all collections :(')
