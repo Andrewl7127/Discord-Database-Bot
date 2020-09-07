@@ -74,8 +74,19 @@ class DatabaseCog(commands.Cog, name="Database"):
             
     #remove point 
     @commands.command()
-    async def removeItem(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
+    async def rmAllItems(self, ctx, arg):
+        try:
+            self.mycursor.execute('DELETE FROM ' + arg)
+            self.mydb.commit()
+            await ctx.send('All items have been successfully removed from the ' + arg + ' collection')
+        except Exception as e:
+             print("Exeception occured:{}".format(e))
+             await ctx.send('The table could not be deleted :(')
+
+    
+    
+
+        
 
     #undo fucntion? (undoes last command)
 
@@ -119,7 +130,7 @@ class DatabaseCog(commands.Cog, name="Database"):
     
     #alter table
     @commands.command()
-    async def addCategory(self, ctx, *args):
+    async def addCat(self, ctx, *args):
         try:
             command = 'ALTER TABLE '
             command += args[0]
@@ -133,7 +144,7 @@ class DatabaseCog(commands.Cog, name="Database"):
                 await ctx.send("Unable to create table. Sorry :(")
 
     @commands.command()
-    async def removeCategory(self, ctx, *args):
+    async def rmCat(self, ctx, *args):
         try:
             command = 'ALTER TABLE '
             command += args[0]
