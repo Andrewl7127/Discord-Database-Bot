@@ -2,13 +2,18 @@ import discord
 from discord.ext import commands
 import asyncio
 import datetime
+import config
 import mysql.connector
-
 
 class DatabaseCog(commands.Cog, name="Database"):
     def __init__(self, client):
         self.client = client
-
+        self.mydb = mysql.connector.connect(
+            host = config.sql_host,
+            user = config.sql_username,
+            password = config.sql_password,
+            database = config.sql_database
+        )
 
     #create a new table 
     @commands.command() 
@@ -72,4 +77,4 @@ class DatabaseCog(commands.Cog, name="Database"):
 
 def setup(bot):
     bot.add_DatabaseCog(bot)
-    print("Moderation Cog is loaded")
+    print("Database Cog is loaded")
