@@ -50,15 +50,19 @@ class DatabaseCog(commands.Cog, name="Database"):
                     if len(args) - 1 == 1:
                         command += "('', '" + args[1] + "')"
                     else:
-                        count = 1
-                        for arg in args[1:]:
-                            if count % num_col == 1:
-                                command += "('', '" + arg + "', "
-                            elif count % num_col == 0:
-                                command += "'" + arg + "'), "
-                            else:
-                                command += "'" + arg + "', "
-                        count += 1
+                        if num_col == 1:
+                            for arg in args[1:]:
+                                command += "('', '" + arg + "'), "
+                        else:
+                            count = 1
+                            for arg in args[1:]:
+                                if count % num_col == 1:
+                                    command += "('', '" + arg + "', "
+                                elif count % num_col == 0:
+                                    command += "'" + arg + "'), "
+                                else:
+                                    command += "'" + arg + "', "
+                                count += 1
                         command = command[:-2] 
                     print (command)
                     self.mycursor.execute(command)
