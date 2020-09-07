@@ -110,8 +110,17 @@ class DatabaseCog(commands.Cog, name="Database"):
     
     #list all tables 
     @commands.command()
-    async def getTables(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
+    async def lstCol(self, ctx):
+        try:
+            self.mycursor.execute('SHOW TABLES')
+            tables = self.mycursor.fetchall()
+            msg = ''
+            for table in tables:
+                msg += table[0] + ', '
+            await ctx.send(msg[:-2])
+        except Exception as e:
+             print("Exeception occured:{}".format(e))
+             await ctx.send('Could not list all collections :(')
 
     # delete table
     @commands.command()
