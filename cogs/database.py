@@ -32,20 +32,54 @@ class DatabaseCog(commands.Cog, name="Database"):
             command = command[:-2]
             command += ')'
             self.mycursor.execute(command)
-            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)-1}` categorie(s)`")
+            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)-1}` categories`")
         except Exception as e:
              print("Exeception occured:{}".format(e))
              await ctx.send("Unable to create table. Sorry :(")
 
     ##cadd a point to table 
     @commands.command()
-    async def addPoint(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
-
+    async def addItem(self, ctx, *args):
+        try:
+            self.mycursor.execute("SELECT count(*) FROM information_schema.columns WHERE table_name = " + "'" + str(args[0]) + "'")
+            num_col = self.mycursor.fetchall()[0][0]
+            try:
+                if len(args) > 1 and (len(args)-1) % num_col == 0:
+                    command = 'INSERT INTO ' + args[0] + ' VALUES '
+                    if len(args) - 1 == 1:
+                        command += "('" + args[1] + "')"
+                    else:
+                        count = 1
+                        for arg in args[1:]:
+                            if count % num_col == 1:
+                                command += "('" + arg + "', "
+                            elif count % num_col == 0:
+                                command += "'" + arg + "'), "
+                            else:
+                                command += "'" + arg + "', "
+                            count += 1
+                        command = command[:-2] 
+                    self.mycursor.execute(command)
+                    self.mydb.commit()
+                    await ctx.send("Item(s) successfully added")
+                elif len(args) == 1:
+                    await ctx.send("You must pass in more than just the table name")
+                else:
+                    await ctx.send(f"You do not have the correct amount of arguments. The `{args[0]}` collection requires a multiple of `{num_col}` to place values. You currently have `{len(args)-1}` values")
+            except Exception as e:
+                await ctx.send(f"Adding to databse failed. This is likely not a user error")
+                print("Exeception occured:{}".format(e))
+        except Exception as e:
+            await ctx.send(f"The `{args[0]}` collection does not exist")
+            
     #remove point 
     @commands.command()
-    async def remove(self, ctx, *args):
+    async def removeItem(self, ctx, *args):
         ctx.send("FUNCTION NOT IMPLEMENTED")
+
+    #undo fucntion? (undoes last command)
+
+    #alter point 
 
     #pull point by key
     @commands.command() 
@@ -92,7 +126,6 @@ class DatabaseCog(commands.Cog, name="Database"):
             for arg in args[1:]:
                 command += ' ADD ' + arg + ' VARCHAR(255), '
             command = command[:-2]
-            print(command)
             self.mycursor.execute(command)
             await ctx.send(f"Succesfully added `{len(args)-1}` categories` to `{args[0]}` collection")
         except Exception as e:
