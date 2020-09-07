@@ -3,7 +3,7 @@ from discord.ext import commands
 import asyncio
 import datetime
 
-class WelcomeCog(commands.Cog, name="Moderator"):
+class WelcomeCog(commands.Cog, name="Welcome"):
     def __init__(self, client):
         self.client = client
     
