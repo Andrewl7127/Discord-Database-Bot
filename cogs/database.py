@@ -23,7 +23,7 @@ class DatabaseCog(commands.Cog, name="Database"):
 
     #create a new table 
     @commands.command() 
-    async def addCollection(self, ctx, *args):
+    async def addCol(self, ctx, *args):
         try: 
             command = 'CREATE TABLE '
             command += args[0] + ' ('
@@ -76,12 +76,12 @@ class DatabaseCog(commands.Cog, name="Database"):
     @commands.command()
     async def rmAllItems(self, ctx, arg):
         try:
-            self.mycursor.execute('DELETE FROM ' + arg)
+            self.mycursor.execute('TRUNCATE TABLE ' + arg)
             self.mydb.commit()
             await ctx.send('All items have been successfully removed from the ' + arg + ' collection')
         except Exception as e:
              print("Exeception occured:{}".format(e))
-             await ctx.send('The table could not be deleted :(')
+             await ctx.send('The items could not be deleted :(')
 
     
     
@@ -110,18 +110,28 @@ class DatabaseCog(commands.Cog, name="Database"):
     
     #list all tables 
     @commands.command()
-    async def getTables(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
+    async def lstCol(self, ctx):
+        try:
+            self.mycursor.execute('SHOW TABLES')
+            tables = self.mycursor.fetchall()
+            msg = ''
+            for table in tables:
+                msg += table[0] + ', '
+            await ctx.send(msg[:-2])
+        except Exception as e:
+             print("Exeception occured:{}".format(e))
+             await ctx.send('Could not list all collections :(')
 
     # delete table
     @commands.command()
-    async def deleteTable(self, ctx, arg):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
+    async def rmCol(self, ctx, arg):
+        try:
+            self.mycursor.execute('DROP TABLE ' + arg)
+            await ctx.send('The ' + arg + ' collection has successfully been removed')
+        except Exception as e:
+             print("Exeception occured:{}".format(e))
+             await ctx.send('The collection could not be deleted :(')
 
-    #empty table 
-    @commands.command 
-    async def delTable(self, ctx, arg):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
 
     #get table length 
     @commands.command()
