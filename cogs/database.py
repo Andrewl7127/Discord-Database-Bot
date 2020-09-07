@@ -103,10 +103,6 @@ class DatabaseCog(commands.Cog, name="Database"):
     async def getMany(self, ctx, *args):
         ctx.send("FUNCTION NOT IMPLEMENTED")
 
-    #pull all points 
-    @commands.command()
-    async def getAll(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
     
     #list all tables 
     @commands.command()
@@ -135,9 +131,32 @@ class DatabaseCog(commands.Cog, name="Database"):
 
     #get table length 
     @commands.command()
-    async def tableLen(self, ctx, arg):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
+    async def laTable(self, ctx, arg):
+        command = "DESCRIBE " + arg
+        try: 
+            self.mycursor.execute(command)
+            table = self.mycursor.fetchall()
+            msg = ""
+            for i in table:
+                msg+=str(i[0]).ljust(21)
+            msg+="\n"
+
+            command = "SELECT * FROM " + arg
+            self.mycursor.execute(command)
+            table = self.mycursor.fetchall()
+            for row in range(len(table)):
+                for col in range(len (table[0])):
+                    msg += str(table[row][col]).ljust(20)
+                    msg += " "
+                msg += "\n"  
+
+        except Exception as e:
+            print("Exeception occured:{}".format(e))
+            await ctx.send('The table could not be retrieved')
     
+        await ctx.send(msg)
+
+
     @commands.command()
     async def lsCat(self, ctx, arg):
         command = 'DESCRIBE ' + arg
@@ -150,12 +169,6 @@ class DatabaseCog(commands.Cog, name="Database"):
             await ctx.send(f"The categories for the `{arg}` table are : '{msg[:-2]}`")
         except Exception as e:
             await ctx.send("Could not list. Check to make sure the table name is correct")
-
-
-
-
-
-
     
     #alter table
     @commands.command()
