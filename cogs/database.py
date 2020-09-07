@@ -20,10 +20,11 @@ class DatabaseCog(commands.Cog, name="Database"):
              print("Exeception occured:{}".format(e))
 
         self.mycursor.execute('USE new_schema')
+        self.max_length = 20
 
     #create a new table 
     @commands.command() 
-    async def addCol(self, ctx, *args):
+    async def addCollection(self, ctx, *args):
         try: 
             command = 'CREATE TABLE '
             command += args[0] + ' ('
@@ -51,6 +52,7 @@ class DatabaseCog(commands.Cog, name="Database"):
                     else:
                         count = 1
                         for arg in args[1:]:
+                            self.max_length = max(len(str(args)), self.max_length)
                             if count % num_col == 1:
                                 command += "('" + arg + "', "
                             elif count % num_col == 0:
@@ -128,10 +130,6 @@ class DatabaseCog(commands.Cog, name="Database"):
     async def getMany(self, ctx, *args):
         ctx.send("FUNCTION NOT IMPLEMENTED")
 
-    #pull all points 
-    @commands.command()
-    async def getAll(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
     
     #list all tables 
     @commands.command()
@@ -149,7 +147,7 @@ class DatabaseCog(commands.Cog, name="Database"):
 
     # delete table
     @commands.command()
-    async def rmCol(self, ctx, arg):
+    async def rmCollection(self, ctx, arg):
         try:
             self.mycursor.execute('DROP TABLE ' + arg)
             await ctx.send('The ' + arg + ' collection has successfully been removed')
@@ -158,10 +156,46 @@ class DatabaseCog(commands.Cog, name="Database"):
              await ctx.send('The collection could not be deleted :(')
 
 
-    #get table length 
+    #list everything in a specified table 
     @commands.command()
-    async def tableLen(self, ctx, arg):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
+    async def laTable(self, ctx, arg):
+        command = "DESCRIBE " + arg
+        try: 
+            self.mycursor.execute(command)
+            table = self.mycursor.fetchall()
+            msg = ""
+            for i in table:
+                msg+=str(i[0]).ljust(self.max_length+6)
+            msg+="\n"
+
+            command = "SELECT * FROM " + arg
+            self.mycursor.execute(command)
+            table = self.mycursor.fetchall()
+            for row in range(len(table)):
+                for col in range(len (table[0])):
+                    msg += str(table[row][col]).ljust(self.max_length+5)
+                    msg += " "
+                msg += "\n"  
+
+        except Exception as e:
+            print("Exeception occured:{}".format(e))
+            await ctx.send('The table could not be retrieved')
+    
+        await ctx.send(msg)
+
+
+    @commands.command()
+    async def lsCat(self, ctx, arg):
+        command = 'DESCRIBE ' + arg
+        try:
+            self.mycursor.execute(command)
+            col = self.mycursor.fetchall()
+            msg = ""
+            for i in col:
+                msg+=i[0] + ", "
+            await ctx.send(f"The categories for the `{arg}` table are : '{msg[:-2]}`")
+        except Exception as e:
+            await ctx.send("Could not list. Check to make sure the table name is correct")
     
     #alter table
     @commands.command()
