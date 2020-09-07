@@ -128,6 +128,25 @@ class DatabaseCog(commands.Cog, name="Database"):
     async def tableLen(self, ctx, arg):
         ctx.send("FUNCTION NOT IMPLEMENTED")
     
+    @commands.command()
+    async def lsCat(self, ctx, arg):
+        command = 'DESCRIBE ' + arg
+        try:
+            self.mycursor.execute(command)
+            col = self.mycursor.fetchall()
+            msg = ""
+            for i in col:
+                msg+=i[0] + ", "
+            await ctx.send(f"The categories for the `{arg}` table are : '{msg[:-2]}`")
+        except Exception as e:
+            await ctx.send("Could not list. Check to make sure the table name is correct")
+
+
+
+
+
+
+    
     #alter table
     @commands.command()
     async def addCat(self, ctx, *args):
