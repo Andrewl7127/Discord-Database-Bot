@@ -2,34 +2,65 @@ import discord
 from discord.ext import commands
 import asyncio
 import datetime
+import mysql.connector
+
 
 class DatabaseCog(commands.Cog, name="Database"):
     def __init__(self, client):
         self.client = client
 
 
+    #create a new table 
+    @commands.command() 
+    async def newtable(self, ctx, *args):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
+
+    ##cadd a point to table 
+    @commands.command()
+    async def addPoint(self, ctx, *args):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
+
+    #remove point 
+    @commands.command()
+    async def remove(self, ctx, *args):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
+
+    #pull point by key
+    @commands.command() 
+    async def get(self, ctx, *args):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
 
 
-#create table
+    #pull x amount of points
+    @commands.command() 
+    async def getMany(self, ctx, *args):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
 
-#add point 
+    #pull all points 
+    @commands.command()
+    async def getAll(self, ctx, *args):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
+    
+    #list all tables 
+    @commands.command()
+    async def getTables(self, ctx, *args):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
 
-#remove point 
+    # delete table
+    @commands.command()
+    async def deleteTable(self, ctx, arg):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
 
-# pull point by key
+    #empty table 
+    @commands.command 
+    async def delTable(self, ctx, arg):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
 
+    #get table length 
+    @commands.command()
+    async def tableLen(self, ctx, arg):
+        ctx.send("FUNCTION NOT IMPLEMENTED")
 
-# pull x amount of points
-
-# pull all points
-
-# list tables 
-
-# delete table 
-
-# empty table 
-
-# get table length 
 
 #default table functionality 
 
