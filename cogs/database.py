@@ -27,40 +27,40 @@ class DatabaseCog(commands.Cog, name="Database"):
     async def addCollection(self, ctx, *args):
         try: 
             command = 'CREATE TABLE '
-            command += args[0] + ' ('
+            command += args[0] + ' (ID int NOT NULL AUTO_INCREMENT, '
             for arg in args[1:]:
                 command += arg + ' VARCHAR(255), '
             command = command[:-2]
-            command += ')'
+            command += ', PRIMARY KEY (ID))'
             self.mycursor.execute(command)
-            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)-1}` categories`")
+            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)}` categories`")
         except Exception as e:
              print("Exeception occured:{}".format(e))
              await ctx.send("Unable to create table. Sorry :(")
 
-    ##cadd a point to table 
+    #add a point to table 
     @commands.command()
     async def addItem(self, ctx, *args):
         try:
-            self.mycursor.execute("SELECT count(*) FROM information_schema.columns WHERE table_name = " + "'" + str(args[0]) + "'")
-            num_col = self.mycursor.fetchall()[0][0]
+            self.mycursor.execute("SELECT count(*) FROM information_schema.columns WHERE table_name = " + "'" + args[0] + "'")
+            num_col = self.mycursor.fetchall()[0][0] - 1
             try:
                 if len(args) > 1 and (len(args)-1) % num_col == 0:
                     command = 'INSERT INTO ' + args[0] + ' VALUES '
                     if len(args) - 1 == 1:
-                        command += "('" + args[1] + "')"
+                        command += "('', '" + args[1] + "')"
                     else:
                         count = 1
                         for arg in args[1:]:
-                            self.max_length = max(len(str(args)), self.max_length)
                             if count % num_col == 1:
-                                command += "('" + arg + "', "
+                                command += "('', '" + arg + "', "
                             elif count % num_col == 0:
                                 command += "'" + arg + "'), "
                             else:
                                 command += "'" + arg + "', "
-                            count += 1
+                        count += 1
                         command = command[:-2] 
+                    print (command)
                     self.mycursor.execute(command)
                     self.mydb.commit()
                     await ctx.send("Item(s) successfully added")
