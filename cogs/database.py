@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 import datetime
-import config
+import cogs.config as config
 import mysql.connector
 
 class DatabaseCog(commands.Cog, name="Database"):
@@ -14,10 +14,19 @@ class DatabaseCog(commands.Cog, name="Database"):
             password = config.sql_password,
             database = config.sql_database
         )
+        self.mycursor = self.mydb.cursor()
+        self.mycursor.execute('USE new_schema')
 
     #create a new table 
     @commands.command() 
     async def newtable(self, ctx, *args):
+        command = 'CREATE TABLE '
+        command += args[0] + ' ('
+        for arg in args[1:]:
+            command += arg + ' VARCHAR(255), '
+        command = command[:-2]
+        command += ')'
+        self.mycursor.execute(command)
         ctx.send("FUNCTION NOT IMPLEMENTED")
 
     ##cadd a point to table 
@@ -65,6 +74,8 @@ class DatabaseCog(commands.Cog, name="Database"):
     @commands.command()
     async def tableLen(self, ctx, arg):
         ctx.send("FUNCTION NOT IMPLEMENTED")
+    
+    #alter table
 
 
 #default table functionality 
@@ -76,5 +87,5 @@ class DatabaseCog(commands.Cog, name="Database"):
   
 
 def setup(bot):
-    bot.add_DatabaseCog(bot)
+    bot.add_cog(DatabaseCog(bot))
     print("Database Cog is loaded")

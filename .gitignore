@@ -1,5 +1,5 @@
 
 .vscode
 config.py
+sqlconfig.py
 __pycache__/
-*.py[cod]
