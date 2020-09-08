@@ -85,13 +85,6 @@ class DatabaseCog(commands.Cog, name="Database"):
              print("Exeception occured:{}".format(e))
              await ctx.send('The items could not be deleted :(')
 
-    
-    
-
-        
-
-    #undo fucntion? (undoes last command)
-
     #alter point 
 
     #pull point by key
@@ -198,10 +191,6 @@ class DatabaseCog(commands.Cog, name="Database"):
     
         return msg
 
-            
-
-
-
     @commands.command()
     async def lsCat(self, ctx, arg):
         command = 'DESCRIBE ' + arg
@@ -242,17 +231,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             await ctx.send(f"Succesfully dropped `{len(args)-1}` categories` from `{args[0]}` collection")
         except Exception as e:
                 print("Exeception occured:{}".format(e))
-                await ctx.send("Unable to create table. Sorry :(")
-
-
-
-#default table functionality 
-
-
-
-
-##TODO: HELP COG FOR HELP MESSAGES 
-  
+                await ctx.send("Unable to create table. Sorry :(")  
 
 def setup(bot):
     bot.add_cog(DatabaseCog(bot))
