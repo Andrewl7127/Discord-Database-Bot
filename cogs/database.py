@@ -97,7 +97,40 @@ class DatabaseCog(commands.Cog, name="Database"):
     #pull point by key
     @commands.command() 
     async def get(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
+        command = ""
+        msg = ""
+        if(len(args) > 2):
+            if(len(args) % 2 == 1):
+                i = 1
+                table_name = args[0]
+                command += "SELECT * FROM " + table_name + " WHERE "
+                while i < (len(args)):
+                    if(args[i] == "ID" or args[i] == "id"):
+                        if i%2 == 1:
+                            command += args[i] + " = "
+                        else:
+                            command += args[i] + " AND "
+                    else:
+                        if i%2 == 1:
+                            command +=  args[i] + " = "
+                        else:
+                            command+= "'" + args[i] + "'" + " AND "
+                    i+=1
+                
+                command = command[:-5]
+                self.mycursor.execute(command)
+                table  = self.mycursor.fetchall()
+                print(table)
+                if(len(table) == 0):
+                    await ctx.send("No data matches the query you selected")
+                else:
+                    for row in table:
+                        print(row)
+                    #ctx.send(msg)
+            else:
+                await ctx.send("Make sure every column has a search query associated with it")
+        else:
+            await ctx.send("You need at least 3 arguments. 1 is table name, 1 is column name, 1 is the value to get")
 
 
     #pull x amount of points
@@ -157,7 +190,6 @@ class DatabaseCog(commands.Cog, name="Database"):
             await ctx.send('The table could not be retrieved')
     
         await ctx.send(msg)
-
 
     @commands.command()
     async def lsCat(self, ctx, arg):
