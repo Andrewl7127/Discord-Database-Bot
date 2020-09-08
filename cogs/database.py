@@ -120,13 +120,11 @@ class DatabaseCog(commands.Cog, name="Database"):
                 command = command[:-5]
                 self.mycursor.execute(command)
                 table  = self.mycursor.fetchall()
-                print(table)
                 if(len(table) == 0):
                     await ctx.send("No data matches the query you selected")
                 else:
-                    for row in table:
-                        print(row)
-                    #ctx.send(msg)
+                    msg = self.printTable(args[0], table)
+                    await ctx.send(msg)
             else:
                 await ctx.send("Make sure every column has a search query associated with it")
         else:
