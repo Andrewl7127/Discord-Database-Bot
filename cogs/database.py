@@ -20,7 +20,7 @@ class DatabaseCog(commands.Cog, name="Database"):
              print("Exeception occured:{}".format(e))
 
         self.mycursor.execute('USE new_schema')
-        self.max_length = 20
+        self.max_length = 25
 
     #create a new table 
     @commands.command() 
@@ -168,28 +168,41 @@ class DatabaseCog(commands.Cog, name="Database"):
     @commands.command()
     async def laTable(self, ctx, arg):
         command = "DESCRIBE " + arg
+        msg = ""
         try: 
-            self.mycursor.execute(command)
-            table = self.mycursor.fetchall()
-            msg = ""
-            for i in table:
-                msg+=str(i[0]).ljust(self.max_length+6)
-            msg+="\n"
-
             command = "SELECT * FROM " + arg
             self.mycursor.execute(command)
             table = self.mycursor.fetchall()
-            for row in range(len(table)):
-                for col in range(len (table[0])):
-                    msg += str(table[row][col]).ljust(self.max_length+5)
-                    msg += " "
-                msg += "\n"  
-
+            msg = self.printTable(arg, table)
         except Exception as e:
             print("Exeception occured:{}".format(e))
             await ctx.send('The table could not be retrieved')
     
         await ctx.send(msg)
+    
+    def printTable(self, table_name, table_vals):
+        command = "DESCRIBE " + table_name
+        msg = ""
+        try: 
+            self.mycursor.execute(command)
+            header = self.mycursor.fetchall()
+            for i in header:
+                 msg+=str(i[0]).ljust(self.max_length+5)
+            msg+="\n"
+
+            for row in range(len (table_vals)):
+                for col in range(len (table_vals[0])):
+                    msg+=str(table_vals[row][col]).ljust(self.max_length+5)
+                msg+="\n"
+        except Exception as e:
+            print("Exeception occured:{}".format(e))
+            return 'The table could not be retrieved'
+    
+        return msg
+
+            
+
+
 
     @commands.command()
     async def lsCat(self, ctx, arg):
