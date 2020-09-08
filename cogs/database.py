@@ -27,40 +27,44 @@ class DatabaseCog(commands.Cog, name="Database"):
     async def addCollection(self, ctx, *args):
         try: 
             command = 'CREATE TABLE '
-            command += args[0] + ' ('
+            command += args[0] + ' (ID int NOT NULL AUTO_INCREMENT, '
             for arg in args[1:]:
                 command += arg + ' VARCHAR(255), '
             command = command[:-2]
-            command += ')'
+            command += ', PRIMARY KEY (ID))'
             self.mycursor.execute(command)
-            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)-1}` categories`")
+            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)}` categories`")
         except Exception as e:
              print("Exeception occured:{}".format(e))
              await ctx.send("Unable to create table. Sorry :(")
 
-    ##cadd a point to table 
+    #add a point to table 
     @commands.command()
     async def addItem(self, ctx, *args):
         try:
-            self.mycursor.execute("SELECT count(*) FROM information_schema.columns WHERE table_name = " + "'" + str(args[0]) + "'")
-            num_col = self.mycursor.fetchall()[0][0]
+            self.mycursor.execute("SELECT count(*) FROM information_schema.columns WHERE table_name = " + "'" + args[0] + "'")
+            num_col = self.mycursor.fetchall()[0][0] - 1
             try:
                 if len(args) > 1 and (len(args)-1) % num_col == 0:
                     command = 'INSERT INTO ' + args[0] + ' VALUES '
                     if len(args) - 1 == 1:
-                        command += "('" + args[1] + "')"
+                        command += "('', '" + args[1] + "')"
                     else:
-                        count = 1
-                        for arg in args[1:]:
-                            self.max_length = max(len(str(args)), self.max_length)
-                            if count % num_col == 1:
-                                command += "('" + arg + "', "
-                            elif count % num_col == 0:
-                                command += "'" + arg + "'), "
-                            else:
-                                command += "'" + arg + "', "
-                            count += 1
+                        if num_col == 1:
+                            for arg in args[1:]:
+                                command += "('', '" + arg + "'), "
+                        else:
+                            count = 1
+                            for arg in args[1:]:
+                                if count % num_col == 1:
+                                    command += "('', '" + arg + "', "
+                                elif count % num_col == 0:
+                                    command += "'" + arg + "'), "
+                                else:
+                                    command += "'" + arg + "', "
+                                count += 1
                         command = command[:-2] 
+                    print (command)
                     self.mycursor.execute(command)
                     self.mydb.commit()
                     await ctx.send("Item(s) successfully added")
@@ -74,18 +78,61 @@ class DatabaseCog(commands.Cog, name="Database"):
         except Exception as e:
             await ctx.send(f"The `{args[0]}` collection does not exist")
             
-    #remove point 
+    #removes all points 
     @commands.command()
-    async def rmAllItems(self, ctx, arg):
+    async def clearItems(self, ctx, arg):
         try:
             self.mycursor.execute('TRUNCATE TABLE ' + arg)
             self.mydb.commit()
-            await ctx.send('All items have been successfully removed from the ' + arg + ' collection')
+            await ctx.send(f'All items have been successfully removed from the `{arg}` collection')
         except Exception as e:
              print("Exeception occured:{}".format(e))
-             await ctx.send('The items could not be deleted :(')
+             await ctx.send('The item(s) could not be deleted :(')
 
     #alter point 
+    @commands.command()
+    async def updItem(self, ctx, *args):
+        if len(args) >= 3:
+            if len(args) % 2 == 1:
+                await ctx.send('Please make sure there is one value for every category')
+            else:
+                try:
+                    command = 'UPDATE ' + args[0] + ' SET '
+                    count = 1
+                    for arg in args[2:]:
+                        if count % 2 == 1:
+                            command += arg + ' = '
+                        else:
+                            command += "'" + arg + "', "
+                        count += 1
+                    command = command[:-2]
+                    command += ' WHERE ID = ' + args[1]
+                    self.mycursor.execute(command)
+                    self.mydb.commit()
+                    await ctx.send(f'The item(s) have been successfully been updated in the `{args[0]}` collection')
+                except Exception as e:
+                    print("Exeception occured:{}".format(e))
+                    await ctx.send('The item(s) could not be modified :(')
+        else:
+            await ctx.send('Please make sure you meet the minimum parameters')
+
+    #remove point
+    @commands.command()
+    async def rmItem(self, ctx, *args):
+        if len(args) >= 2:
+            try:
+                command = 'DELETE FROM ' + args[0] + ' WHERE ID IN ('
+                for arg in args[1:]:
+                    command += arg + ', '
+                command = command[:-2]
+                self.mycursor.execute(command + ')')
+                self.mydb.commit()
+                await ctx.send(f'The item(s) have been successfully removed from the `{args[0]}` collection')
+            except Exception as e:
+                print("Exeception occured:{}".format(e))
+                await ctx.send('The item(s) could not be removed :(')
+        else:
+            await ctx.send('Please make sure you meet the minimum parameters')
 
     #pull point by key
     @commands.command() 
@@ -139,7 +186,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             msg = ''
             for table in tables:
                 msg += table[0] + ', '
-            await ctx.send(msg[:-2])
+            await ctx.send('You have created the following collections: ' + msg[:-2])
         except Exception as e:
              print("Exeception occured:{}".format(e))
              await ctx.send('Could not list all collections :(')
