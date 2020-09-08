@@ -80,7 +80,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             
     #removes all points 
     @commands.command()
-    async def rmAllItems(self, ctx, arg):
+    async def clearItems(self, ctx, arg):
         try:
             self.mycursor.execute('TRUNCATE TABLE ' + arg)
             self.mydb.commit()
