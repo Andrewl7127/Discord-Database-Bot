@@ -101,7 +101,7 @@ class DatabaseCog(commands.Cog, name="Database"):
     async def updItem(self, ctx, *args):
         if len(args) >= 3:
             if len(args) % 2 == 1:
-                await ctx.send('You need a table name and one value for every column')
+                await ctx.send('Please make sure there is one value for every category')
             else:
                 try:
                     command = 'UPDATE ' + args[0] + ' SET '
@@ -121,7 +121,25 @@ class DatabaseCog(commands.Cog, name="Database"):
                     print("Exeception occured:{}".format(e))
                     await ctx.send('The item(s) could not be modified :(')
         else:
-            await ctx.send('You need at least one column to modify')
+            await ctx.send('Please make sure you meet the minimum parameters')
+
+    #remove point
+    @commands.command()
+    async def rmItem(self, ctx, *args):
+        if len(args) >= 2:
+            try:
+                command = 'DELETE FROM ' + args[0] + ' WHERE ID IN ('
+                for arg in args[1:]:
+                    command += arg + ', '
+                command = command[:-2]
+                self.mycursor.execute(command + ')')
+                self.mydb.commit()
+                await ctx.send(f'The item(s) have been successfully removed from the `{args[0]}` collection')
+            except Exception as e:
+                print("Exeception occured:{}".format(e))
+                await ctx.send('The item(s) could not be removed :(')
+        else:
+            await ctx.send('Please make sure you meet the minimum parameters')
 
     #pull point by key
     @commands.command() 
