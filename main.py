@@ -13,7 +13,7 @@ client  = commands.Bot(command_prefix = ".", case_insensitive = "true")
 async def on_ready():
     print("Bot ready")
 
-initial_extensions = ['cogs.moderation', 'cogs.welcome', 'cogs.database']
+initial_extensions = ['cogs.moderation', 'cogs.welcome', 'cogs.database', 'cogs.help']
 
 if __name__ == '__main__':
     for extension in initial_extensions:
