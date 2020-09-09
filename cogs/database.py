@@ -33,10 +33,10 @@ class DatabaseCog(commands.Cog, name="Database"):
             command = command[:-2]
             command += ', PRIMARY KEY (ID))'
             self.mycursor.execute(command)
-            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)}` categories`")
+            await ctx.send(f"`{args[0]}` collection created succesfully with `{len(args)}` category/categories`")
         except Exception as e:
              print("Exeception occured:{}".format(e))
-             await ctx.send("Unable to create table. Sorry :(")
+             await ctx.send("Failed to create the collection :(")
 
     #add a point to table 
     @commands.command()
@@ -73,21 +73,21 @@ class DatabaseCog(commands.Cog, name="Database"):
                 else:
                     await ctx.send(f"You do not have the correct amount of arguments. The `{args[0]}` collection requires a multiple of `{num_col}` to place values. You currently have `{len(args)-1}` values")
             except Exception as e:
-                await ctx.send(f"Adding to databse failed. This is likely not a user error")
+                await ctx.send("Failed to add the item :(")
                 print("Exeception occured:{}".format(e))
         except Exception as e:
             await ctx.send(f"The `{args[0]}` collection does not exist")
             
     #removes all points 
     @commands.command()
-    async def clearItems(self, ctx, arg):
+    async def clearItem(self, ctx, arg):
         try:
             self.mycursor.execute('TRUNCATE TABLE ' + arg)
             self.mydb.commit()
-            await ctx.send(f'All items have been successfully removed from the `{arg}` collection')
+            await ctx.send(f'All item(s) have been successfully removed from the `{arg}` collection')
         except Exception as e:
              print("Exeception occured:{}".format(e))
-             await ctx.send('The item(s) could not be deleted :(')
+             await ctx.send('Failed to delete the item(s) :(')
 
     #alter point 
     @commands.command()
@@ -112,7 +112,7 @@ class DatabaseCog(commands.Cog, name="Database"):
                     await ctx.send(f'The item(s) have been successfully been updated in the `{args[0]}` collection')
                 except Exception as e:
                     print("Exeception occured:{}".format(e))
-                    await ctx.send('The item(s) could not be modified :(')
+                    await ctx.send('Failed to modify the item(s) :(')
         else:
             await ctx.send('Please make sure you meet the minimum parameters')
 
@@ -130,56 +130,54 @@ class DatabaseCog(commands.Cog, name="Database"):
                 await ctx.send(f'The item(s) have been successfully removed from the `{args[0]}` collection')
             except Exception as e:
                 print("Exeception occured:{}".format(e))
-                await ctx.send('The item(s) could not be removed :(')
+                await ctx.send('Failed to remove the item(s) :(')
         else:
             await ctx.send('Please make sure you meet the minimum parameters')
 
     #pull point by key
     @commands.command() 
-    async def get(self, ctx, *args):
+    async def findItem(self, ctx, *args):
         command = ""
         msg = ""
-        if(len(args) > 2):
-            if(len(args) % 2 == 1):
-                i = 1
-                table_name = args[0]
-                command += "SELECT * FROM " + table_name + " WHERE "
-                while i < (len(args)):
-                    if(args[i] == "ID" or args[i] == "id"):
-                        if i%2 == 1:
-                            command += args[i] + " = "
+        if len(args) > 2:
+            if len(args) % 2 == 1:
+                try:
+                    i = 1
+                    table_name = args[0]
+                    command += "SELECT * FROM " + table_name + " WHERE "
+                    while i < len(args):
+                        if(args[i] == "ID" or args[i] == "id"):
+                            if i%2 == 1:
+                                command += args[i] + " = "
+                            else:
+                                command += args[i] + " AND "
                         else:
-                            command += args[i] + " AND "
+                            if i%2 == 1:
+                                command +=  args[i] + " = "
+                            else:
+                                command+= "'" + args[i] + "'" + " AND "
+                        i+=1
+                    
+                    command = command[:-5]
+                    self.mycursor.execute(command)
+                    table  = self.mycursor.fetchall()
+                    if(len(table) == 0):
+                        await ctx.send("No data matches the query you selected")
                     else:
-                        if i%2 == 1:
-                            command +=  args[i] + " = "
-                        else:
-                            command+= "'" + args[i] + "'" + " AND "
-                    i+=1
-                
-                command = command[:-5]
-                self.mycursor.execute(command)
-                table  = self.mycursor.fetchall()
-                if(len(table) == 0):
-                    await ctx.send("No data matches the query you selected")
-                else:
-                    msg = self.printTable(args[0], table)
-                    await ctx.send(msg)
+                        msg = self.printTable(args[0], table)
+                        await ctx.send(msg)
+                except Exception as e:
+                    print("Exeception occured:{}".format(e))
+                    await ctx.send('Failed to find the item(s) :(')
             else:
                 await ctx.send("Make sure every column has a search query associated with it")
         else:
             await ctx.send("You need at least 3 arguments. 1 is table name, 1 is column name, 1 is the value to get")
 
-
-    #pull x amount of points
-    @commands.command() 
-    async def getMany(self, ctx, *args):
-        ctx.send("FUNCTION NOT IMPLEMENTED")
-
     
     #list all tables 
     @commands.command()
-    async def lstCol(self, ctx):
+    async def lsCollection(self, ctx):
         try:
             self.mycursor.execute('SHOW TABLES')
             tables = self.mycursor.fetchall()
@@ -189,7 +187,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             await ctx.send('You have created the following collections: ' + msg[:-2])
         except Exception as e:
              print("Exeception occured:{}".format(e))
-             await ctx.send('Could not list all collections :(')
+             await ctx.send('Failed to list all collection(s) :(')
 
     # delete table
     @commands.command()
@@ -199,12 +197,12 @@ class DatabaseCog(commands.Cog, name="Database"):
             await ctx.send('The ' + arg + ' collection has successfully been removed')
         except Exception as e:
              print("Exeception occured:{}".format(e))
-             await ctx.send('The collection could not be deleted :(')
+             await ctx.send('Failed to delete the collection :(')
 
 
     #list everything in a specified table 
     @commands.command()
-    async def laTable(self, ctx, arg):
+    async def lsItem(self, ctx, arg):
         command = "DESCRIBE " + arg
         msg = ""
         try: 
@@ -214,7 +212,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             msg = self.printTable(arg, table)
         except Exception as e:
             print("Exeception occured:{}".format(e))
-            await ctx.send('The table could not be retrieved')
+            await ctx.send('Failed to retrieve the table :(')
     
         await ctx.send(msg)
     
@@ -234,7 +232,7 @@ class DatabaseCog(commands.Cog, name="Database"):
                 msg+="\n"
         except Exception as e:
             print("Exeception occured:{}".format(e))
-            return 'The table could not be retrieved'
+            return 'Failed to retrieve the table :('
     
         return msg
 
@@ -249,7 +247,7 @@ class DatabaseCog(commands.Cog, name="Database"):
                 msg+=i[0] + ", "
             await ctx.send(f"The categories for the `{arg}` table are : '{msg[:-2]}`")
         except Exception as e:
-            await ctx.send("Could not list. Check to make sure the table name is correct")
+            await ctx.send("Failed to list category/categories :(. Check to make sure the table name is correct")
     
     #alter table
     @commands.command()
@@ -264,7 +262,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             await ctx.send(f"Succesfully added `{len(args)-1}` categories` to `{args[0]}` collection")
         except Exception as e:
                 print("Exeception occured:{}".format(e))
-                await ctx.send("Unable to create table. Sorry :(")
+                await ctx.send("Failed to add the category/categories :(")
 
     @commands.command()
     async def rmCat(self, ctx, *args):
@@ -278,7 +276,7 @@ class DatabaseCog(commands.Cog, name="Database"):
             await ctx.send(f"Succesfully dropped `{len(args)-1}` categories` from `{args[0]}` collection")
         except Exception as e:
                 print("Exeception occured:{}".format(e))
-                await ctx.send("Unable to create table. Sorry :(")  
+                await ctx.send("Failed to remove category/categories :(")  
 
 def setup(bot):
     bot.add_cog(DatabaseCog(bot))
