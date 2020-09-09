@@ -9,16 +9,13 @@ class WelcomeCog(commands.Cog, name="Welcome"):
     
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        embed = discord.Embed(color = 0x95efcc, description=f"Welcome to the server! You are member {len(list(member.guild.members))}`")
-        await member.send(embed)
-
         embed = discord.Embed(title="Welcome to the Server!", description="For more information on the commands please use .help.")
         embed.add_field(name = "DB_Bot", value="This bot is used to store and retrive information from a database")
         embed.add_field(name = "Collections", value="Collections store your items. Each collection has certain categories.")
         embed.add_field(name = "Categories", value ="Categories are the specific fields of information that you want to collect.")
         embed.add_field(name = "Items", value = "Items are the specific pieces of information that you want to store. They have values corresponding to your collection's categories.")
         
-        await member.send(embed)
+        await member.send(embed = embed)
 
 
     
