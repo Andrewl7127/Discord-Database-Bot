@@ -10,7 +10,7 @@ class HelpCog(commands.Cog, name="Help"):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.content == ".help":
-            embed = discord.Embed(title="Help Page", description="This is the documentation for the bot") #,color=Hex code
+            embed = discord.Embed(title="Help Page", description="This is the documentation for the bot.") #,color=Hex code
              
             embed.add_field(name='.addCollection "collection name" "category name..."', value= 'Creates a new collection. Requires 1 collection name' + 
                                                 'and at least 1 category name (all collections are automatically created with a unique ID category).\n \n Ex. .addCollection Waypoints')
